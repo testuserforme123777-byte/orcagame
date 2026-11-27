@@ -402,17 +402,97 @@ function renderEnemies(g, camera = { x: 0, y: 0 }) {
     g.strokeStyle = boss.def.accent;
     g.lineWidth = 4;
     const hw = boss.w / 2, hh = boss.h / 2;
+    const body = boss.hitFlash > 0 ? '#fff' : boss.def.color;
+    const detail = boss.def.accent;
+    const stroke = (width = 3) => { g.lineWidth = width; g.lineJoin = 'round'; g.lineCap = 'round'; };
+    const path = (points, close = true) => {
+      g.beginPath();
+      points.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y));
+      if (close) g.closePath();
+      g.fill(); g.stroke();
+    };
+    g.fillStyle = body;
+    g.strokeStyle = detail;
+    stroke(3);
     switch (boss.def.shape) {
-      case 'brute':    g.fillRect(-hw, -hh, boss.w, boss.h); g.strokeRect(-hw, -hh, boss.w, boss.h); break;
-      case 'crystal':  g.beginPath(); g.moveTo(0, -hh); g.lineTo(hw, 0); g.lineTo(0, hh); g.lineTo(-hw, 0); g.closePath(); g.fill(); g.stroke(); break;
-      case 'serpent':  g.beginPath(); g.ellipse(0, 0, hw, hh, 0, 0, Math.PI * 2); g.fill(); g.stroke(); break;
-      case 'warden':   g.fillRect(-hw * 0.7, -hh, boss.w * 0.7, boss.h); g.beginPath(); g.arc(0, -hh, hw * 0.45, 0, Math.PI, true); g.fill(); g.stroke(); break;
-      case 'sovereign':g.beginPath(); g.moveTo(0, -hh); g.lineTo(hw, hh * 0.4); g.lineTo(hw * 0.5, hh); g.lineTo(-hw * 0.5, hh); g.lineTo(-hw, hh * 0.4); g.closePath(); g.fill(); g.stroke(); break;
+      case 'brute': { // Coral Warden: broad crab-knight with a shell and pincers.
+        g.fillStyle = detail;
+        path([[-hw*.72,-hh*.08],[-hw-12,-hh*.55],[-hw-18,-hh*.25],[-hw*.78,hh*.18]]);
+        path([[hw*.72,-hh*.08],[hw+12,-hh*.55],[hw+18,-hh*.25],[hw*.78,hh*.18]]);
+        g.fillStyle = body;
+        path([[-hw*.72,-hh*.42],[-hw*.48,-hh*.82],[0,-hh*.96],[hw*.48,-hh*.82],[hw*.72,-hh*.42],[hw*.65,hh*.52],[0,hh*.78],[-hw*.65,hh*.52]]);
+        g.fillStyle = detail;
+        path([[-hw*.52,-hh*.65],[-hw*.22,-hh*.94],[0,-hh*.68],[hw*.22,-hh*.94],[hw*.52,-hh*.65],[0,-hh*.48]]);
+        g.fillStyle = body;
+        for (const side of [-1,1]) {
+          g.beginPath(); g.moveTo(side*hw*.55,hh*.2); g.lineTo(side*hw*.92,hh*.48); g.lineTo(side*hw*.7,hh*.64); g.lineTo(side*hw*.42,hh*.48); g.closePath(); g.fill(); g.stroke();
+        }
+        break;
+      }
+      case 'crystal': { // Ruin Colossus: faceted golem with shoulder shards.
+        g.fillStyle = detail;
+        path([[-hw*.72,-hh*.42],[-hw-7,-hh*.78],[-hw*.42,-hh*.62],[-hw*.2,-hh*.92],[0,-hh*.7],[hw*.2,-hh*.92],[hw*.42,-hh*.62],[hw+7,-hh*.78],[hw*.72,-hh*.42]]);
+        g.fillStyle = body;
+        path([[-hw*.56,-hh*.62],[-hw*.28,-hh],[hw*.18,-hh*.94],[hw*.58,-hh*.54],[hw*.48,hh*.62],[0,hh],[ -hw*.5,hh*.58]]);
+        g.fillStyle = detail;
+        path([[-hw*.28,-hh*.78],[0,-hh*.42],[hw*.22,-hh*.78],[hw*.08,-hh*.2],[0,hh*.22],[-hw*.12,-hh*.18]]);
+        g.fillStyle = body;
+        path([[-hw*.45,hh*.35],[-hw*.72,hh*.78],[-hw*.2,hh*.7]]);
+        path([[hw*.45,hh*.35],[hw*.72,hh*.78],[hw*.2,hh*.7]]);
+        break;
+      }
+      case 'serpent': { // Abyss Emperor: long sea-dragon head, horns and fins.
+        g.fillStyle = detail;
+        path([[-hw*.58,-hh*.28],[-hw*.92,-hh*.95],[-hw*.18,-hh*.62],[-hw*.05,-hh*.95],[hw*.2,-hh*.58],[hw*.78,-hh*.82],[hw*.52,-hh*.12]]);
+        g.fillStyle = body;
+        g.beginPath(); g.ellipse(0,0,hw*.86,hh*.62,0,0,Math.PI*2); g.fill(); g.stroke();
+        g.fillStyle = detail;
+        path([[hw*.35,-hh*.18],[hw*.98,0],[hw*.36,hh*.34],[hw*.62,hh*.08]]);
+        path([[-hw*.48,hh*.12],[-hw*.88,hh*.68],[-hw*.2,hh*.42]]);
+        // layered neck scales
+        for(let i=0;i<4;i++){ g.beginPath(); g.arc(-hw*.42+i*13,hh*.18,5,0,Math.PI); g.stroke(); }
+        break;
+      }
+      case 'warden': { // Kelp Guardian: armored plant sentinel with branching antlers.
+        g.fillStyle = detail;
+        path([[-hw*.48,-hh*.55],[-hw*.95,-hh*.98],[-hw*.78,-hh*.38],[-hw*.38,-hh*.2]]);
+        path([[hw*.48,-hh*.55],[hw*.95,-hh*.98],[hw*.78,-hh*.38],[hw*.38,-hh*.2]]);
+        g.fillStyle = body;
+        path([[-hw*.56,-hh*.48],[-hw*.4,-hh*.9],[hw*.4,-hh*.9],[hw*.56,-hh*.48],[hw*.48,hh*.62],[0,hh*.9],[-hw*.48,hh*.62]]);
+        g.fillStyle = detail;
+        path([[-hw*.3,-hh*.72],[0,-hh*.96],[hw*.3,-hh*.72],[hw*.18,-hh*.34],[0,-hh*.48],[-hw*.18,-hh*.34]]);
+        // leafy shoulder plates and root legs
+        path([[-hw*.52,-hh*.12],[-hw*.98,hh*.12],[-hw*.72,hh*.48],[-hw*.38,hh*.28]]);
+        path([[hw*.52,-hh*.12],[hw*.98,hh*.12],[hw*.72,hh*.48],[hw*.38,hh*.28]]);
+        g.fillStyle = body;
+        path([[-hw*.42,hh*.52],[-hw*.55,hh*.94],[-hw*.08,hh*.78]]);
+        path([[hw*.42,hh*.52],[hw*.55,hh*.94],[hw*.08,hh*.78]]);
+        break;
+      }
+      case 'sovereign': { // Ice Leviathan: crowned armored sea-beast with dorsal spikes.
+        g.fillStyle = detail;
+        path([[-hw*.68,-hh*.48],[-hw*.92,-hh*.98],[-hw*.42,-hh*.72],[-hw*.18,-hh],[0,-hh*.68],[hw*.18,-hh],[hw*.42,-hh*.72],[hw*.92,-hh*.98],[hw*.68,-hh*.48]]);
+        g.fillStyle = body;
+        path([[-hw*.68,-hh*.48],[-hw*.42,-hh*.82],[hw*.42,-hh*.82],[hw*.68,-hh*.48],[hw*.82,hh*.38],[hw*.38,hh*.88],[-hw*.38,hh*.88],[-hw*.82,hh*.38]]);
+        g.fillStyle = detail;
+        path([[-hw*.55,-hh*.4],[0,-hh*.66],[hw*.55,-hh*.4],[hw*.35,hh*.48],[0,hh*.68],[-hw*.35,hh*.48]]);
+        // icy cheek fins
+        path([[-hw*.62,-hh*.04],[-hw-8,hh*.28],[-hw*.58,hh*.48]]);
+        path([[hw*.62,-hh*.04],[hw+8,hh*.28],[hw*.58,hh*.48]]);
+        break;
+      }
     }
-    // eyes
+    // Face: expressive eyes, brow ridges and a visible jaw/mouth on every boss.
     g.fillStyle = boss.def.eyeColor;
-    g.fillRect(-boss.w * 0.18, -hh * 0.4, 8, 14);
-    g.fillRect(boss.w * 0.08, -hh * 0.4, 8, 14);
+    g.beginPath(); g.ellipse(-boss.w*.18,-hh*.2,7,10,-.18,0,Math.PI*2); g.fill();
+    g.beginPath(); g.ellipse(boss.w*.12,-hh*.2,7,10,.18,0,Math.PI*2); g.fill();
+    g.fillStyle = '#17212b';
+    g.beginPath(); g.arc(-boss.w*.17,-hh*.2,3,0,Math.PI*2); g.fill();
+    g.beginPath(); g.arc(boss.w*.13,-hh*.2,3,0,Math.PI*2); g.fill();
+    g.strokeStyle = '#17212b'; stroke(3);
+    g.beginPath(); g.moveTo(-hw*.28,hh*.22); g.quadraticCurveTo(0,hh*.43,hw*.28,hh*.22); g.stroke();
+    g.fillStyle = '#f7f2dc';
+    g.beginPath(); g.moveTo(-hw*.12,hh*.25); g.lineTo(-hw*.06,hh*.38); g.lineTo(0,hh*.26); g.lineTo(hw*.06,hh*.38); g.lineTo(hw*.12,hh*.25); g.closePath(); g.fill();
     g.restore();
 
     // Health bar (top of screen, centered)
